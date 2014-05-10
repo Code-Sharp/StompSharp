@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E4034B28-B6ED-4E0B-A2A8-F7831EAE59C7}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{02242B62-715D-4BE6-BF42-C47C11C124AD}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Stomp2</RootNamespace>
-    <AssemblyName>Stomp2</AssemblyName>
+    <RootNamespace>StompSharp.Tests</RootNamespace>
+    <AssemblyName>StompSharp.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,20 +30,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Reactive.Core">
-      <HintPath>..\packages\Rx-Core.2.2.4\lib\net45\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\packages\Rx-Interfaces.2.2.4\lib\net45\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Linq">
-      <HintPath>..\packages\Rx-Linq.2.2.4\lib\net45\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.4\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,35 +42,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BodyOutgoingMessage.cs" />
-    <Compile Include="Header.cs" />
-    <Compile Include="IDestination.cs" />
-    <Compile Include="IHeader.cs" />
-    <Compile Include="IMessage.cs" />
-    <Compile Include="IMessageFactory.cs" />
-    <Compile Include="IMessageRouter.cs" />
-    <Compile Include="IMessageSerializer.cs" />
-    <Compile Include="IOutgoingMessage.cs" />
-    <Compile Include="IStompClient.cs" />
-    <Compile Include="ITransport.cs" />
-    <Compile Include="Message.cs" />
-    <Compile Include="MessageBuilder.cs" />
-    <Compile Include="MessageRouter.cs" />
-    <Compile Include="MessageSerializerQueue.cs" />
-    <Compile Include="OutgoingMessageAdapter.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReceiptAction.cs" />
-    <Compile Include="StompClient.cs" />
-    <Compile Include="StompDestination.cs" />
-    <Compile Include="StompTransport.cs" />
-    <Compile Include="StreamMessageFactory.cs" />
-    <Compile Include="StreamMessageSerializer.cs" />
-    <Compile Include="Threading\BlockingCollectionTaskScheduler.cs" />
+    <Compile Include="Threading\BlockingCollectionTaskSchedulerTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StompSharp\StompSharp.csproj">
+      <Project>{E4034B28-B6ED-4E0B-A2A8-F7831EAE59C7}</Project>
+      <Name>StompSharp</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
