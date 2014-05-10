@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Stomp2;
 
@@ -131,17 +133,29 @@ namespace Stomp2
             
             var destination = client.GetDestination("/queue/a");
 
+            Stopwatch sw = Stopwatch.StartNew();
             using (destination.IncommingMessages.Subscribe(WriteMessageId))
             {
                 SendMessages(destination).Wait();
 
+                manualResetEvent.WaitOne();
+                Console.WriteLine(sw.Elapsed);
                 Console.ReadLine();
             }
         }
 
+        private static int messageSeq;
+
+        private static readonly ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+
         private static void WriteMessageId(IMessage obj)
         {
-            Console.WriteLine("Received Message " + Regex.Match(obj.Headers.FirstOrDefault(h => h.Key == "message-id").Value.ToString(), @"(\d+)$").Groups[1].Value);
+            //Console.WriteLine("Received Message " + Regex.Match(obj.Headers.FirstOrDefault(h => h.Key == "message-id").Value.ToString(), @"(\d+)$").Groups[1].Value);
+
+            if (++messageSeq == 10000)
+            {
+                manualResetEvent.Set();
+            }
         }
 
         private static void WriteMessageAsFile(IMessage obj)
@@ -154,15 +168,14 @@ namespace Stomp2
 
         private static async Task SendMessages(IDestination destination)
         {
-            var bodyOutgoingMessage = new BodyOutgoingMessage(File.ReadAllBytes(@"C:\Users\Shani\Downloads\GitHubSetup.exe"));
+            var bodyOutgoingMessage = new BodyOutgoingMessage(File.ReadAllBytes(@"Example.xml"));
 
             for (int i = 0; i < 10000; i++)
             {
                 int temp = i;
                 
-                destination.SendAsync(bodyOutgoingMessage,
-                    () => Console.WriteLine("Done message " + temp));
-                Console.WriteLine("Sent message " + temp);
+                destination.SendAsync(bodyOutgoingMessage, null);
+                //Console.WriteLine("Sent message " + temp);
             }
         }
     }

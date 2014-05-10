@@ -12,9 +12,12 @@ namespace Stomp2
             get { return _messageSequence; }
         }
 
-        public Action Callback
+        public void Callback()
         {
-            get { return _callback; }
+            if (_callback != null)
+            {
+                _callback();
+            }
         }
 
         public ReceiptAction(long messageSequence, Action callback)

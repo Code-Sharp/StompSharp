@@ -68,6 +68,7 @@ namespace Stomp2
         private long _messageSequence;
         private bool _subscribed;
 
+        private readonly object _receiptActionsSyncRoot = new object();
         private readonly Queue<ReceiptAction> _receiptActions = new Queue<ReceiptAction>();
 
         public StompDestination(StompTransport transport, string destination, int id, IObservable<IMessage> incommingMessages)
@@ -119,26 +120,29 @@ namespace Stomp2
                 return;
             }
 
-
-            var nextReceipt = _receiptActions.Peek();
-
-            while (nextReceipt.MessageSequence < messageSequence)
+            lock (_receiptActionsSyncRoot)
             {
-                _receiptActions.Dequeue();
-                nextReceipt = _receiptActions.Peek();
-                Console.WriteLine("Error?!");
-            }
 
-            if (nextReceipt.MessageSequence == messageSequence)
-            {
-                nextReceipt.Callback();
-                _receiptActions.Dequeue();
-                return;
-            }
+                var nextReceipt = _receiptActions.Peek();
 
-            if (nextReceipt.MessageSequence > messageSequence)
-            {
-                // WTF?!                
+                while (nextReceipt.MessageSequence < messageSequence)
+                {
+                    _receiptActions.Dequeue();
+                    nextReceipt = _receiptActions.Peek();
+                    Console.WriteLine("Error?!");
+                }
+
+                if (nextReceipt.MessageSequence == messageSequence)
+                {
+                    nextReceipt.Callback();
+                    _receiptActions.Dequeue();
+                    return;
+                }
+
+                if (nextReceipt.MessageSequence > messageSequence)
+                {
+                    // WTF?!                
+                }
             }
         }
 
@@ -146,7 +150,11 @@ namespace Stomp2
         {
             var currentSequence = Interlocked.Increment(ref _messageSequence);
 
-            _receiptActions.Enqueue(new ReceiptAction(currentSequence, whenDone));
+            lock (_receiptActionsSyncRoot)
+            {
+                _receiptActions.Enqueue(new ReceiptAction(currentSequence, whenDone));    
+            }
+            
             _transport.SendMessage(new OutgoingMessageAdapter(message, _destination, currentSequence));
         }
 
