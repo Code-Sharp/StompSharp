@@ -33,7 +33,7 @@ namespace Stomp2
 
             Task.Factory.StartNew(ReadLoop);
 
-            SendMessage(new MessageBuilder("CONNECT").Header("accept-version", 1.2).WithoutBody()).Wait();
+            SendMessage(new MessageBuilder("CONNECT").Header("accept-version", 1.2).WithoutBody());
         }
 
         private void ReadLoop()
@@ -54,9 +54,9 @@ namespace Stomp2
             get { return _outgoingMessagesSubject; }
         }
 
-        public async Task SendMessage(IMessage message)
+        public void SendMessage(IMessage message)
         {
-            await _messageSerializer.Serialize(message).ConfigureAwait(false);
+            _messageSerializer.Serialize(message).Wait();
             _outgoingMessagesSubject.OnNext(message);
         }
 

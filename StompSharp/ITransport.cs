@@ -24,11 +24,11 @@ namespace Stomp2
         IObservable<IMessage> OutgoingMessages { get; }
 
         /// <summary>
-        /// Sends the message asynchronously to the server
+        /// Sends the message synchronously to the server
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task SendMessage(IMessage message);
+        void SendMessage(IMessage message);
 
 
     }

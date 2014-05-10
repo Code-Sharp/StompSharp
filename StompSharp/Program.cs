@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Stomp2;
 
@@ -126,14 +131,17 @@ namespace Stomp2
             
             var destination = client.GetDestination("/queue/a");
 
-            SendMessages(destination).Wait();
-
-            using (destination.IncommingMessages.Subscribe(Console.WriteLine))
-            using (destination.IncommingMessages.Subscribe(WriteMessageAsFile))
-
+            using (destination.IncommingMessages.Subscribe(WriteMessageId))
             {
+                SendMessages(destination).Wait();
+
                 Console.ReadLine();
             }
+        }
+
+        private static void WriteMessageId(IMessage obj)
+        {
+            Console.WriteLine("Received Message " + Regex.Match(obj.Headers.FirstOrDefault(h => h.Key == "message-id").Value.ToString(), @"(\d+)$").Groups[1].Value);
         }
 
         private static void WriteMessageAsFile(IMessage obj)
@@ -146,11 +154,15 @@ namespace Stomp2
 
         private static async Task SendMessages(IDestination destination)
         {
-            for (int i = 0; i < 100; i++)
+            var bodyOutgoingMessage = new BodyOutgoingMessage(File.ReadAllBytes(@"C:\Users\Shani\Downloads\GitHubSetup.exe"));
+
+            for (int i = 0; i < 10000; i++)
             {
                 int temp = i;
-                destination.SendAsync(new BodyOutgoingMessage(File.ReadAllBytes(@"C:\Intel\Logs\IntelAMT.log")),
+                
+                destination.SendAsync(bodyOutgoingMessage,
                     () => Console.WriteLine("Done message " + temp));
+                Console.WriteLine("Sent message " + temp);
             }
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,14 +34,27 @@ namespace Stomp2
             // Do something about it!
             if (contentLength != -1)
             {
-                var bodyBuffer = new char[contentLength];
+                char[] bodyBuffer = new char[contentLength];
 
-                _reader.Read(bodyBuffer, 0, bodyBuffer.Length);
+                var totalBytes = 0;
+                do
+                {
+                    var readBytes = _reader.Read(bodyBuffer, totalBytes, bodyBuffer.Length - totalBytes);
+                    totalBytes += readBytes;
+                } while (totalBytes != contentLength);
+                
 
                 // Read the last Null.
-                _reader.Read();
+                byte nullByte = (byte) _reader.Read();
 
-                return new Message(command, headers, _reader.CurrentEncoding.GetBytes(bodyBuffer));
+                if (nullByte != (char) 0)
+                {
+                    throw new Exception();
+                }
+
+
+
+                return new Message(command, headers, CastToByteBuffer(bodyBuffer));
             }
 
             // Read until null is found.
@@ -55,6 +69,18 @@ namespace Stomp2
             }
 
             return new Message(command, headers, body.ToArray());
+        }
+
+        private byte[] CastToByteBuffer(char[] bodyBuffer)
+        {
+            byte[] retVal = new byte[bodyBuffer.Length];
+
+            for (int i = 0; i < bodyBuffer.Length; i++)
+            {
+                retVal[i] = (byte)bodyBuffer[i];
+            }
+
+            return retVal;
         }
 
         private IList<IHeader> GetHeaders()

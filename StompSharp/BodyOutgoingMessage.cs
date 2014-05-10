@@ -16,9 +16,8 @@ namespace Stomp2
         {
             get
             {
-                yield return new Header("content-type", "application/octet-stream; charset=ASCII");
-                //return Enumerable.Empty<IHeader>(); 
-                
+                //yield return new Header("content-type", "application/octet-stream; charset=binary");
+                return Enumerable.Empty<IHeader>();    
             }
         }
 

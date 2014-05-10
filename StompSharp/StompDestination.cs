@@ -80,17 +80,16 @@ namespace Stomp2
             _transport.IncommingMessages.GetObservable("RECEIPT").Subscribe(OnReceiptReceived);
 
             _incommingMessagesObservable =
-                Observable.Create(new Func<IObserver<IMessage>, Task<IDisposable>>(RegisterToQueue))
+                Observable.Create(new Func<IObserver<IMessage>, IDisposable>(RegisterToQueue))
                     .Publish()
                     .RefCount();
         }
 
-        private async Task<IDisposable> RegisterToQueue(IObserver<IMessage> arg)
+        private IDisposable RegisterToQueue(IObserver<IMessage> arg)
         {
             _subscribed = true;
 
-            await
-                _transport.SendMessage(
+            _transport.SendMessage(
                     new MessageBuilder("SUBSCRIBE").Header("destination", _destination).Header("id", _id).WithoutBody());
 
             _incommingMessages.Subscribe(arg);
@@ -99,14 +98,13 @@ namespace Stomp2
         }
 
 
-        private async void Unsubscribe()
+        private void Unsubscribe()
         {
             if (_subscribed)
             {
-                await _transport.SendMessage(new MessageBuilder("UNSUBSCRIBE").Header("ID", _id).Header("destination", _destination).WithoutBody());
+                _transport.SendMessage(new MessageBuilder("UNSUBSCRIBE").Header("ID", _id).Header("destination", _destination).WithoutBody());
                 _subscribed = false;    
             }
-            
         }
 
         private void OnReceiptReceived(IMessage receiptMessage)
@@ -149,7 +147,7 @@ namespace Stomp2
             var currentSequence = Interlocked.Increment(ref _messageSequence);
 
             _receiptActions.Enqueue(new ReceiptAction(currentSequence, whenDone));
-            _transport.SendMessage(new OutgoingMessageAdapter(message, _destination, currentSequence)).Wait();
+            _transport.SendMessage(new OutgoingMessageAdapter(message, _destination, currentSequence));
         }
 
         public IObservable<IMessage> IncommingMessages
