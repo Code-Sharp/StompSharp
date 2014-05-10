@@ -8,38 +8,92 @@ using System.Threading.Tasks;
 
 namespace Stomp2
 {
+    public class RefCountStompDestination : IDestination
+    {
+        private readonly IDestination _destination;
+        private readonly Action<RefCountStompDestination> _disposeAction;
+        private int _references;
+        
+
+        public RefCountStompDestination(IDestination destination, Action<RefCountStompDestination> disposeAction)
+        {
+            _destination = destination;
+            _disposeAction = disposeAction;
+            _references = 0;
+        }
+
+        public void Dispose()
+        {
+            if (Interlocked.Decrement(ref _references) == 0)
+            {
+                _destination.Dispose();
+                _disposeAction(this);
+            }
+        }
+
+        public void Increment()
+        {
+            Interlocked.Increment(ref _references);
+        }
+
+        public string Destination
+        {
+            get { return _destination.Destination; }
+        }
+
+        public int Id
+        {
+            get { return _destination.Id; }
+        }
+
+        public void SendAsync(IOutgoingMessage message, Action whenDone)
+        {
+            _destination.SendAsync(message, whenDone);
+        }
+
+        public IObservable<IMessage> IncommingMessages
+        {
+            get { return _destination.IncommingMessages; }
+        }
+    }
+
     public class StompDestination : IDestination
     {
         private readonly StompTransport _transport;
         private readonly string _destination;
         private readonly int _id;
-        private static long _messageSequence;
-
-        private Queue<ReceiptAction> _receiptActions = new Queue<ReceiptAction>();
-
         private readonly IObservable<IMessage> _incommingMessagesObservable;
+        private readonly IObservable<IMessage> _incommingMessages;
 
-        public StompDestination(StompTransport transport, string destination, int id)
+        private long _messageSequence;
+        private bool _subscribed;
+
+        private readonly Queue<ReceiptAction> _receiptActions = new Queue<ReceiptAction>();
+
+        public StompDestination(StompTransport transport, string destination, int id, IObservable<IMessage> incommingMessages)
         {
             _transport = transport;
             _destination = destination;
             _id = id;
+            _incommingMessages = incommingMessages;
 
             _transport.IncommingMessages.GetObservable("RECEIPT").Subscribe(OnReceiptReceived);
 
             _incommingMessagesObservable =
-                Observable.Create(new Func<IObserver<IMessage>, Task<IDisposable>>(RegisterToQueue));
+                Observable.Create(new Func<IObserver<IMessage>, Task<IDisposable>>(RegisterToQueue))
+                    .Publish()
+                    .RefCount();
         }
 
         private async Task<IDisposable> RegisterToQueue(IObserver<IMessage> arg)
         {
+            _subscribed = true;
+
             await
                 _transport.SendMessage(
                     new MessageBuilder("SUBSCRIBE").Header("destination", _destination).Header("id", _id).WithoutBody());
 
-            _transport.IncommingMessages.GetObservable("MESSAGE")
-                .Where(m => m.Headers.Any(h => h.Key == "id" && h.Value == _id.ToString()))
-                .Subscribe(arg);
+            _incommingMessages.Subscribe(arg);
 
             return Disposable.Create(Unsubscribe);
         }
@@ -47,7 +101,12 @@ namespace Stomp2
 
         private async void Unsubscribe()
         {
-            await _transport.SendMessage(new MessageBuilder("UNSUBSCRIBE").Header("Id", _id).WithoutBody());
+            if (_subscribed)
+            {
+                await _transport.SendMessage(new MessageBuilder("UNSUBSCRIBE").Header("ID", _id).Header("destination", _destination).WithoutBody());
+                _subscribed = false;    
+            }
+            
         }
 
         private void OnReceiptReceived(IMessage receiptMessage)
@@ -83,21 +142,34 @@ namespace Stomp2
             {
                 // WTF?!                
             }
-            
-
         }
 
-        public void SendAsync(IOutgoingMessage message, Action whenDone)
+        public  void SendAsync(IOutgoingMessage message, Action whenDone)
         {
             var currentSequence = Interlocked.Increment(ref _messageSequence);
 
             _receiptActions.Enqueue(new ReceiptAction(currentSequence, whenDone));
-            _transport.SendMessage(new OutgoingMessageAdapter(message, _destination, currentSequence));
+            _transport.SendMessage(new OutgoingMessageAdapter(message, _destination, currentSequence)).Wait();
         }
 
         public IObservable<IMessage> IncommingMessages
         {
             get { return _incommingMessagesObservable; }
+        }
+
+        public string Destination
+        {
+            get { return _destination; }
+        }
+
+        public int Id
+        {
+            get { return _id; }
+        }
+
+        public void Dispose()
+        {
+            Unsubscribe();
         }
     }
 }

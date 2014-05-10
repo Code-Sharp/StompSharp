@@ -14,7 +14,12 @@ namespace Stomp2
 
         public IEnumerable<IHeader> Headers
         {
-            get { return Enumerable.Empty<IHeader>(); }
+            get
+            {
+                yield return new Header("content-type", "application/octet-stream; charset=ASCII");
+                //return Enumerable.Empty<IHeader>(); 
+                
+            }
         }
 
         public BodyOutgoingMessage(byte[] body)

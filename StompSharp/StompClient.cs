@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Threading;
 
 namespace Stomp2
@@ -6,11 +7,12 @@ namespace Stomp2
     {
         private readonly StompTransport _transport;
 
-        private int _destinationIds;
+        private readonly IDestinationStorage _destinationStorage;
 
         public StompClient(string address, int port)
         {
             _transport = new StompTransport(address, port);
+            _destinationStorage = new DestinationStorage(_transport);
         }
 
         public void Dispose()
@@ -25,7 +27,7 @@ namespace Stomp2
 
         public IDestination GetDestination(string destination)
         {
-            return new StompDestination(_transport, destination, Interlocked.Increment(ref _destinationIds));
+            return _destinationStorage.Get(destination);
         }
 
     }

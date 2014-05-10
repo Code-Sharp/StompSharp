@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Stomp2;
 
 namespace Stomp2
@@ -123,12 +124,34 @@ namespace Stomp2
 
             StompClient client = new StompClient("localhost", 61613);
             
-            client.GetDestination("/queue/a")
-                .SendAsync(new BodyOutgoingMessage(File.ReadAllBytes(@"C:\Intel\Logs\IntelAMT.log")),
-                    () => Console.WriteLine("Done!"));
+            var destination = client.GetDestination("/queue/a");
 
+            SendMessages(destination).Wait();
 
-            Console.ReadLine();
+            using (destination.IncommingMessages.Subscribe(Console.WriteLine))
+            using (destination.IncommingMessages.Subscribe(WriteMessageAsFile))
+
+            {
+                Console.ReadLine();
+            }
+        }
+
+        private static void WriteMessageAsFile(IMessage obj)
+        {
+            string tempFileName = Path.GetTempFileName();
+            File.WriteAllBytes(tempFileName, obj.Body);
+
+            Console.WriteLine(tempFileName);
+        }
+
+        private static async Task SendMessages(IDestination destination)
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                int temp = i;
+                destination.SendAsync(new BodyOutgoingMessage(File.ReadAllBytes(@"C:\Intel\Logs\IntelAMT.log")),
+                    () => Console.WriteLine("Done message " + temp));
+            }
         }
     }
 }

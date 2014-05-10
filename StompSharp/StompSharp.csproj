@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ParallelExtensionsExtras">
+      <HintPath>..\packages\ParallelExtensionsExtras.1.2.0.0\lib\net40\ParallelExtensionsExtras.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core">
@@ -54,8 +57,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BodyOutgoingMessage.cs" />
+    <Compile Include="DestinationStorage.cs" />
     <Compile Include="Header.cs" />
     <Compile Include="IDestination.cs" />
+    <Compile Include="IDestinationStorage.cs" />
     <Compile Include="IHeader.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageFactory.cs" />
