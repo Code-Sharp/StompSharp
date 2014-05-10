@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30324.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stomp2", "Stomp2\Stomp2.csproj", "{E4034B28-B6ED-4E0B-A2A8-F7831EAE59C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StompSharp", "Stomp2\StompSharp.csproj", "{E4034B28-B6ED-4E0B-A2A8-F7831EAE59C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
