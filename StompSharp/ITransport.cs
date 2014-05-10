@@ -28,7 +28,7 @@ namespace Stomp2
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        void SendMessage(IMessage message);
+        Task SendMessage(IMessage message);
 
 
     }

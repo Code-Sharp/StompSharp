@@ -81,16 +81,16 @@ namespace Stomp2
             _transport.IncommingMessages.GetObservable("RECEIPT").Subscribe(OnReceiptReceived);
 
             _incommingMessagesObservable =
-                Observable.Create(new Func<IObserver<IMessage>, IDisposable>(RegisterToQueue))
+                Observable.Create(new Func<IObserver<IMessage>, Task<IDisposable>>(RegisterToQueue))
                     .Publish()
                     .RefCount();
         }
 
-        private IDisposable RegisterToQueue(IObserver<IMessage> arg)
+        private async Task<IDisposable> RegisterToQueue(IObserver<IMessage> arg)
         {
             _subscribed = true;
 
-            _transport.SendMessage(
+            await _transport.SendMessage(
                     new MessageBuilder("SUBSCRIBE").Header("destination", _destination).Header("id", _id).WithoutBody());
 
             _incommingMessages.Subscribe(arg);
@@ -99,11 +99,11 @@ namespace Stomp2
         }
 
 
-        private void Unsubscribe()
+        private async void Unsubscribe()
         {
             if (_subscribed)
             {
-                _transport.SendMessage(new MessageBuilder("UNSUBSCRIBE").Header("ID", _id).Header("destination", _destination).WithoutBody());
+                await _transport.SendMessage(new MessageBuilder("UNSUBSCRIBE").Header("ID", _id).Header("destination", _destination).WithoutBody());
                 _subscribed = false;    
             }
         }

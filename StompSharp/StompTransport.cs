@@ -26,21 +26,21 @@ namespace Stomp2
 
             _messageFactory = new StreamMessageFactory(new StreamReader(_client.GetStream(), Encoding.ASCII));
             _messageSerializer =
-                // new MessageSerializerQueue(
-                    new StreamMessageSerializer(new StreamWriter(_client.GetStream(), Encoding.ASCII));
+                 new MessageSerializerQueue(
+                    new StreamMessageSerializer(new StreamWriter(_client.GetStream(), Encoding.ASCII)));
 
             _incommingMessageRouter = new MessageRouter(_incommingMessagesSubject);
 
             Task.Factory.StartNew(ReadLoop);
 
-            SendMessage(new MessageBuilder("CONNECT").Header("accept-version", 1.2).WithoutBody());
+            SendMessage(new MessageBuilder("CONNECT").Header("accept-version", 1.2).WithoutBody()).Wait();
         }
 
-        private void ReadLoop()
+        private async void ReadLoop()
         {
             while (!_disposed)
             {
-                _incommingMessagesSubject.OnNext(_messageFactory.Create());
+                _incommingMessagesSubject.OnNext(await _messageFactory.Create());
             }
         }
 
@@ -54,9 +54,9 @@ namespace Stomp2
             get { return _outgoingMessagesSubject; }
         }
 
-        public void SendMessage(IMessage message)
+        public async Task SendMessage(IMessage message)
         {
-            _messageSerializer.Serialize(message).Wait();
+            await _messageSerializer.Serialize(message);
             _outgoingMessagesSubject.OnNext(message);
         }
 

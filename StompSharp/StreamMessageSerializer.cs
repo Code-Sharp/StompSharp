@@ -15,31 +15,33 @@ namespace Stomp2
             _streamWriter.AutoFlush = false;
         }
 
-        public async Task Serialize(IMessage message)
+        public Task Serialize(IMessage message)
         {
             // Command
-            await _streamWriter.WriteLineAsync(message.Command).ConfigureAwait(false);
+            _streamWriter.WriteLine(message.Command);
 
             //Headers
             byte[] bodyBuffer = message.Body;
             // Content-length header.
-            await _streamWriter.WriteLineAsync(string.Format("content-length:{0}", bodyBuffer.Length)).ConfigureAwait(false);
+            _streamWriter.WriteLine("content-length:{0}", bodyBuffer.Length);
 
             foreach (var header in message.Headers)
             {
-                await _streamWriter.WriteLineAsync(string.Format("{0}:{1}", header.Key, header.Value)).ConfigureAwait(false);
+                _streamWriter.WriteLine("{0}:{1}", header.Key, header.Value);
             }
 
-            await _streamWriter.WriteLineAsync().ConfigureAwait(false);
-            await _streamWriter.FlushAsync().ConfigureAwait(false);
+            _streamWriter.WriteLine();
+            _streamWriter.Flush();
 
             // Body 
-            await _streamWriter.BaseStream.WriteAsync(bodyBuffer, 0, bodyBuffer.Length).ConfigureAwait(false);
+            _streamWriter.BaseStream.Write(bodyBuffer, 0, bodyBuffer.Length);
 
             // Null
-            await _streamWriter.WriteLineAsync((char)0).ConfigureAwait(false);
+            _streamWriter.WriteLine((char) 0);
 
-            await _streamWriter.FlushAsync().ConfigureAwait(false);
+            _streamWriter.Flush();
+
+            return Task.FromResult((object) null);
         }
     }
 }

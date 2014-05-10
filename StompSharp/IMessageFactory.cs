@@ -1,9 +1,11 @@
+using System.Threading.Tasks;
+
 namespace Stomp2
 {
     public interface IMessageFactory
     {
 
-        IMessage Create();
+        Task<IMessage> Create();
 
     }
 }

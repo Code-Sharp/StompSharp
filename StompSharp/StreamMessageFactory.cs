@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stomp2
 {
@@ -15,15 +16,15 @@ namespace Stomp2
         }
 
 
-        public IMessage Create()
+        public async Task<IMessage> Create()
         {
             string command = "\0";
             while (command == "\0" || command == string.Empty)
             {
-                command = _reader.ReadLine();
+                command = await _reader.ReadLineAsync().ConfigureAwait(false);
             }
 
-            var headers = GetHeaders();
+            var headers = await GetHeaders().ConfigureAwait(false);
 
             var contentLength =
                 headers.Where(k => k.Key == "content-length")
@@ -39,7 +40,7 @@ namespace Stomp2
                 var totalBytes = 0;
                 do
                 {
-                    var readBytes = _reader.Read(bodyBuffer, totalBytes, bodyBuffer.Length - totalBytes);
+                    var readBytes = await _reader.ReadAsync(bodyBuffer, totalBytes, bodyBuffer.Length - totalBytes).ConfigureAwait(false);
                     totalBytes += readBytes;
                 } while (totalBytes != contentLength);
                 
@@ -83,10 +84,10 @@ namespace Stomp2
             return retVal;
         }
 
-        private IList<IHeader> GetHeaders()
+        private async Task<IList<IHeader>> GetHeaders()
         {
             IList<IHeader> headers = new List<IHeader>();
-            var headerLine = _reader.ReadLine();
+            var headerLine = await _reader.ReadLineAsync().ConfigureAwait(false);
             while (headerLine != string.Empty)
             {
                 var separatorIndex = headerLine.IndexOf(':');
@@ -96,7 +97,7 @@ namespace Stomp2
 
                 headers.Add(new Header(key, value));
 
-                headerLine = _reader.ReadLine();
+                headerLine = await _reader.ReadLineAsync().ConfigureAwait(false);
             }
             return headers;
         }

@@ -10,8 +10,8 @@ namespace Stomp2
         private readonly IMessageSerializer _next;
 
         private readonly TaskFactory _taskFactory =
-            new TaskFactory(new QueuedTaskScheduler(1));
-            //new TaskFactory(new BlockingCollectionTaskScheduler(new BlockingCollection<Task>(1024)));
+            //new TaskFactory(new QueuedTaskScheduler(1));
+            new TaskFactory(new BlockingCollectionTaskScheduler(new BlockingCollection<Task>(1024)));
 
         public MessageSerializerQueue(IMessageSerializer next)
         {
@@ -20,10 +20,7 @@ namespace Stomp2
 
         public Task Serialize(IMessage message)
         {
-            return _taskFactory.StartNew(async () =>
-            {
-                await _next.Serialize(message).ConfigureAwait(false);
-            });
+            return _taskFactory.StartNew(() => _next.Serialize(message)).Unwrap();
         }
     }
 }
