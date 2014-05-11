@@ -46,9 +46,9 @@ namespace Stomp2
             get { return _destination.Id; }
         }
 
-        public void SendAsync(IOutgoingMessage message, Action whenDone)
+        public Task SendAsync(IOutgoingMessage message, Action whenDone)
         {
-            _destination.SendAsync(message, whenDone);
+            return _destination.SendAsync(message, whenDone);
         }
 
         public IObservable<IMessage> IncommingMessages
@@ -146,7 +146,7 @@ namespace Stomp2
             }
         }
 
-        public  void SendAsync(IOutgoingMessage message, Action whenDone)
+        public Task SendAsync(IOutgoingMessage message, Action whenDone)
         {
             var currentSequence = Interlocked.Increment(ref _messageSequence);
 
@@ -155,7 +155,7 @@ namespace Stomp2
                 _receiptActions.Enqueue(new ReceiptAction(currentSequence, whenDone));    
             }
             
-            _transport.SendMessage(new OutgoingMessageAdapter(message, _destination, currentSequence));
+            return _transport.SendMessage(new OutgoingMessageAdapter(message, _destination, currentSequence));
         }
 
         public IObservable<IMessage> IncommingMessages
