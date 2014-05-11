@@ -38,10 +38,22 @@ namespace Stomp2
 
         private async void ReadLoop()
         {
-            while (!_disposed)
+            try
             {
-                _incommingMessagesSubject.OnNext(await _messageFactory.Create());
+                while (!_disposed)
+                {
+                    _incommingMessagesSubject.OnNext(await _messageFactory.Create());
+                }
             }
+            catch (Exception)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+                throw;
+            }
+
         }
 
         public IMessageRouter IncommingMessages
@@ -64,6 +76,7 @@ namespace Stomp2
         {
             _disposed = true;
 
+            _messageSerializer.Dispose();
             _incommingMessagesSubject.Dispose();
             _outgoingMessagesSubject.Dispose();
             _client.Close();

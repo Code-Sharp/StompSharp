@@ -43,5 +43,10 @@ namespace Stomp2
 
             return Task.FromResult((object) null);
         }
+
+        public void Dispose()
+        {
+            // Do nothing!
+        }
     }
 }

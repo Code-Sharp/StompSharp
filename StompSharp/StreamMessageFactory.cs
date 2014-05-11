@@ -74,14 +74,7 @@ namespace Stomp2
 
         private byte[] CastToByteBuffer(char[] bodyBuffer)
         {
-            byte[] retVal = new byte[bodyBuffer.Length];
-
-            for (int i = 0; i < bodyBuffer.Length; i++)
-            {
-                retVal[i] = (byte)bodyBuffer[i];
-            }
-
-            return retVal;
+            return _reader.CurrentEncoding.GetBytes(bodyBuffer);
         }
 
         private async Task<IList<IHeader>> GetHeaders()

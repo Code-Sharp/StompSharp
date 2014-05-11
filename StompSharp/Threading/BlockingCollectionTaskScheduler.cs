@@ -10,10 +10,9 @@ namespace Stomp2.Threading
 {
     public class BlockingCollectionTaskScheduler : TaskScheduler, IDisposable
     {
-        private readonly object _syncRoot = new object();
-
         private readonly BlockingCollection<Task> _collection;
         private readonly Thread _thread;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public BlockingCollectionTaskScheduler(BlockingCollection<Task> collection)
         {
@@ -24,9 +23,16 @@ namespace Stomp2.Threading
 
         private void RunTasks()
         {
-            foreach (var task in _collection.GetConsumingEnumerable())
+            try
             {
-                TryExecuteTask(task);
+                foreach (var task in _collection.GetConsumingEnumerable(_cancellationTokenSource.Token))
+                {
+                    TryExecuteTask(task);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Mute OperationCanceledException (On dispose)
             }
         }
 
@@ -48,6 +54,7 @@ namespace Stomp2.Threading
         public void Dispose()
         {
             _collection.CompleteAdding();
+            _cancellationTokenSource.Cancel();
             _thread.Join();
         }
     }

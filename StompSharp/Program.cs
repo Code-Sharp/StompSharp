@@ -142,6 +142,8 @@ namespace Stomp2
                 Console.WriteLine(sw.Elapsed);
                 Console.ReadLine();
             }
+
+            client.Dispose();
         }
 
         private static int messageSeq;
