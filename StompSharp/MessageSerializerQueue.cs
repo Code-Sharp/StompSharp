@@ -11,7 +11,7 @@ namespace Stomp2
         private readonly IMessageSerializer _next;
 
         private readonly TaskFactory _taskFactory =
-            new TaskFactory(new BlockingCollectionTaskScheduler(new BlockingCollection<Task>(10)));
+            new TaskFactory(new BlockingCollectionTaskScheduler(new BlockingCollection<Task>(100)));
 
         public MessageSerializerQueue(IMessageSerializer next)
         {

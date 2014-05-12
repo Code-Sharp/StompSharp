@@ -36,6 +36,24 @@ namespace Stomp2
         protected abstract object HeaderValue { get; }
     }
 
+    public class PersistentHeaderDecorator : HeaderDecorator
+    {
+        
+        public PersistentHeaderDecorator(IOutgoingMessage child) : base(child)
+        {
+        }
+
+        protected override string HeaderName
+        {
+            get { return "persistent"; }
+        }
+
+        protected override object HeaderValue
+        {
+            get { return "true"; }
+        }
+    }
+
     public class TransactionHeaderDecorator : HeaderDecorator
     {
         private readonly int _transactionId;
@@ -64,6 +82,13 @@ namespace Stomp2
         {
             return new TransactionHeaderDecorator(message, transaction.Id);
         }
+
+        public static IOutgoingMessage WithPersistence(this IOutgoingMessage message)
+        {
+            return new PersistentHeaderDecorator(message);
+        }
+
+
     }
 
     internal class BodyOutgoingMessage : IOutgoingMessage
