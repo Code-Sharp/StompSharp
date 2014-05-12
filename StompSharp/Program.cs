@@ -134,16 +134,18 @@ namespace Stomp2
             var destination = client.GetDestination("/queue/a");
 
             Stopwatch sw = Stopwatch.StartNew();
-            using (destination.IncommingMessages.Subscribe(WriteMessageId))
+            using (var transaction = client.GetTransaction().Result)
+            //using (destination.IncommingMessages.Subscribe(WriteMessageId))
             {
-                SendMessages(destination).Wait();
+                SendMessages(destination, transaction).Wait();
 
-                manualResetEvent.WaitOne();
-                Console.WriteLine(sw.Elapsed);
-                Console.ReadLine();
+                transaction.Commit();
             }
-
+            
             client.Dispose();
+
+            Console.WriteLine(sw.Elapsed);
+            Console.ReadLine();
         }
 
         private static int messageSeq;
@@ -168,10 +170,9 @@ namespace Stomp2
             Console.WriteLine(tempFileName);
         }
 
-        private static async Task SendMessages(IDestination destination)
+        private static async Task SendMessages(IDestination destination, IStompTransaction transaction)
         {
-            var bodyOutgoingMessage = new BodyOutgoingMessage(File.ReadAllBytes(@"Example.xml"));
-
+            var bodyOutgoingMessage = new BodyOutgoingMessage(File.ReadAllBytes(@"Example.xml")).WithTransaction(transaction);
             for (int i = 0; i < 10000; i++)
             {
                 int temp = i;

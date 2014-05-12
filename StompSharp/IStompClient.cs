@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Stomp2
 {
@@ -11,7 +12,18 @@ namespace Stomp2
         /// </summary>
         ITransport Transport { get; }
 
+        /// <summary>
+        /// Gets the <paramref name="destination"/> destination.
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <returns></returns>
         IDestination GetDestination(string destination);
+
+        /// <summary>
+        /// Gets a transaction
+        /// </summary>
+        /// <returns></returns>
+        Task<IStompTransaction> GetTransaction();
 
     }
 }

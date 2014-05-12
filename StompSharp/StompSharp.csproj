@@ -68,6 +68,7 @@
     <Compile Include="IMessageSerializer.cs" />
     <Compile Include="IOutgoingMessage.cs" />
     <Compile Include="IStompClient.cs" />
+    <Compile Include="IStompTransaction.cs" />
     <Compile Include="ITransport.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageBuilder.cs" />

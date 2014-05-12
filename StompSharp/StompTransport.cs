@@ -1,14 +1,42 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stomp2
 {
+
+    public class LateSubscriber<T> : IDisposable
+    {
+        private readonly IDisposable _subscription;
+        private readonly ReplaySubject<T> _subject;
+
+        public LateSubscriber(IObservable<T> observable)
+        {
+            _subject = new ReplaySubject<T>(int.MaxValue);
+            _subscription = observable.Subscribe(_subject);
+        }
+
+
+
+        public IObservable<T> RecordedItems
+        {
+            get { return _subject; }
+        }
+
+        public void Dispose()
+        {
+            _subscription.Dispose();
+            _subject.Dispose();
+        }
+    }
+
     public class StompTransport : ITransport
     {
         private readonly Subject<IMessage> _incommingMessagesSubject = new Subject<IMessage>();
@@ -33,16 +61,21 @@ namespace Stomp2
 
             Task.Factory.StartNew(ReadLoop);
 
-            SendMessage(new MessageBuilder("CONNECT").Header("accept-version", 1.2).WithoutBody()).Wait();
+            using (var lateSubscriber = new LateSubscriber<IMessage>(IncommingMessages.GetObservable("CONNECTED")))
+            {
+                SendMessage(new MessageBuilder("CONNECT").Header("accept-version", 1.2).WithoutBody()).Wait();
+
+                lateSubscriber.RecordedItems.FirstAsync().Wait();
+            }
         }
 
-        private async void ReadLoop()
+        private void ReadLoop()
         {
             try
             {
                 while (!_disposed)
                 {
-                    _incommingMessagesSubject.OnNext(await _messageFactory.Create());
+                    _incommingMessagesSubject.OnNext(_messageFactory.Create().Result);
                 }
             }
             catch (Exception)
@@ -72,8 +105,20 @@ namespace Stomp2
             _outgoingMessagesSubject.OnNext(message);
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
+            // Register for receipt
+            var subscription = IncommingMessages.GetObservable("RECEIPT")
+                .Where(m => m.Headers.Any(h => h.Key == "receipt-id" && h.Value.ToString() == "disconnect-msg"));
+
+            using (var lateSubscriber = new LateSubscriber<IMessage>(subscription))
+            {
+                // Dispose nicely, Send Discnonect message and wait for receipt.
+                await SendMessage(new MessageBuilder("DISCONNECT").Header("receipt", "disconnect-msg").WithoutBody());
+
+                lateSubscriber.RecordedItems.FirstAsync().Wait();
+            }
+
             _disposed = true;
 
             _messageSerializer.Dispose();
