@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using StompSharp.Messages;
+using StompSharp.Transport;
 
 namespace StompSharp
 {
@@ -46,9 +49,9 @@ namespace StompSharp
             get { return _destination.Id; }
         }
 
-        public Task SendAsync(IOutgoingMessage message, Action whenDone)
+        public Task SendAsync(IOutgoingMessage message, IReceiptBehavior receiptBehavior)
         {
-            return _destination.SendAsync(message, whenDone);
+            return _destination.SendAsync(message, receiptBehavior);
         }
 
         public IObservable<IMessage> IncommingMessages
@@ -64,12 +67,7 @@ namespace StompSharp
         private readonly int _id;
         private readonly IObservable<IMessage> _incommingMessagesObservable;
         private readonly IObservable<IMessage> _incommingMessages;
-
-        private long _messageSequence;
         private bool _subscribed;
-
-        private readonly object _receiptActionsSyncRoot = new object();
-        private readonly Queue<ReceiptAction> _receiptActions = new Queue<ReceiptAction>();
 
         public StompDestination(StompTransport transport, string destination, int id, IObservable<IMessage> incommingMessages)
         {
@@ -77,8 +75,6 @@ namespace StompSharp
             _destination = destination;
             _id = id;
             _incommingMessages = incommingMessages;
-
-            _transport.IncommingMessages.GetObservable("RECEIPT").Subscribe(OnReceiptReceived);
 
             _incommingMessagesObservable =
                 Observable.Create(new Func<IObserver<IMessage>, Task<IDisposable>>(RegisterToQueue))
@@ -108,54 +104,12 @@ namespace StompSharp
             }
         }
 
-        private void OnReceiptReceived(IMessage receiptMessage)
+        public Task SendAsync(IOutgoingMessage message, IReceiptBehavior receiptBehavior)
         {
-            var messageId = receiptMessage.Headers.Single(h => h.Key == "receipt-id").Value.ToString();
-            long messageSequence;
-
-            // Not ours
-            if (!messageId.StartsWith(_destination + ".") ||
-                !long.TryParse(messageId.Substring(_destination.Length + 1), out messageSequence))
-            {
-                return;
-            }
-
-            lock (_receiptActionsSyncRoot)
-            {
-
-                var nextReceipt = _receiptActions.Peek();
-
-                while (nextReceipt.MessageSequence < messageSequence)
-                {
-                    _receiptActions.Dequeue();
-                    nextReceipt = _receiptActions.Peek();
-                    Console.WriteLine("Error?!");
-                }
-
-                if (nextReceipt.MessageSequence == messageSequence)
-                {
-                    nextReceipt.Callback();
-                    _receiptActions.Dequeue();
-                    return;
-                }
-
-                if (nextReceipt.MessageSequence > messageSequence)
-                {
-                    // WTF?!                
-                }
-            }
-        }
-
-        public Task SendAsync(IOutgoingMessage message, Action whenDone)
-        {
-            var currentSequence = Interlocked.Increment(ref _messageSequence);
-
-            lock (_receiptActionsSyncRoot)
-            {
-                _receiptActions.Enqueue(new ReceiptAction(currentSequence, whenDone));    
-            }
-            
-            return _transport.SendMessage(new OutgoingMessageAdapter(message, _destination, currentSequence));
+            return
+                receiptBehavior.DecorateSendMessageTask(
+                    _transport.SendMessage(new OutgoingMessageAdapter(receiptBehavior.DecorateMessage(message),
+                        _destination)));
         }
 
         public IObservable<IMessage> IncommingMessages

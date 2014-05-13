@@ -1,4 +1,5 @@
 using System;
+using StompSharp.Messages;
 
 namespace StompSharp
 {

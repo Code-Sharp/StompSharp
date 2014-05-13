@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
+using StompSharp.Messages;
+using StompSharp.Transport;
 
 namespace StompSharp
 {

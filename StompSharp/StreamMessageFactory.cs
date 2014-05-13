@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using StompSharp.Messages;
 
 namespace StompSharp
 {
     class StreamMessageFactory : IMessageFactory
     {
         private readonly StreamReader _reader;
+
+        private static readonly byte[] EmptyBuffer = new byte[0];
 
         public StreamMessageFactory(StreamReader reader)
         {
@@ -32,44 +35,60 @@ namespace StompSharp
                     .DefaultIfEmpty(-1)
                     .FirstOrDefault();
 
-            // Do something about it!
+            byte[] bodyBuffer = await GetBody(contentLength);
+            
+            return new Message(command, headers, bodyBuffer);
+        }
+
+        private async Task<byte[]> GetBody(int contentLength)
+        {
             if (contentLength != -1)
             {
-                char[] bodyBuffer = new char[contentLength];
-
-                var totalBytes = 0;
-                do
-                {
-                    var readBytes = await _reader.ReadAsync(bodyBuffer, totalBytes, bodyBuffer.Length - totalBytes).ConfigureAwait(false);
-                    totalBytes += readBytes;
-                } while (totalBytes != contentLength);
-                
-
-                // Read the last Null.
-                byte nullByte = (byte) _reader.Read();
-
-                if (nullByte != (char) 0)
-                {
-                    throw new Exception();
-                }
-
-
-
-                return new Message(command, headers, CastToByteBuffer(bodyBuffer));
+                // If content length is found
+                return contentLength == 0 ? EmptyBuffer : await GetMessageBuffer(contentLength);
             }
 
-            // Read until null is found.
+            // If not, read until null.
+            return ReadUntilNull();
+        }
+
+        private byte[] ReadUntilNull()
+        {
             IList<byte> body = new List<byte>();
 
             var readByte = _reader.Read();
             while (readByte != 0)
             {
-                body.Add((byte)readByte);
+                body.Add((byte) readByte);
 
                 readByte = _reader.BaseStream.ReadByte();
             }
 
-            return new Message(command, headers, body.ToArray());
+            return body.ToArray();
+        }
+
+        private async Task<byte[]> GetMessageBuffer(int contentLength)
+        {
+            char[] bodyBuffer = new char[contentLength];
+
+            var totalBytes = 0;
+            do
+            {
+                var readBytes =
+                    await _reader.ReadAsync(bodyBuffer, totalBytes, bodyBuffer.Length - totalBytes).ConfigureAwait(false);
+                totalBytes += readBytes;
+            } while (totalBytes != contentLength);
+
+
+            // Read the last Null.
+            byte nullByte = (byte) _reader.Read();
+
+            if (nullByte != (char) 0)
+            {
+                throw new Exception();
+            }
+            var buffer = CastToByteBuffer(bodyBuffer);
+            return buffer;
         }
 
         private byte[] CastToByteBuffer(char[] bodyBuffer)

@@ -1,18 +1,16 @@
 ﻿using System.Collections.Generic;
 
-namespace StompSharp
+namespace StompSharp.Messages
 {
     public class OutgoingMessageAdapter : IMessage
     {
         private readonly IOutgoingMessage _outgoingMessage;
         private readonly string _destination;
-        private readonly long _messageSequence;
-
-        public OutgoingMessageAdapter(IOutgoingMessage outgoingMessage, string destination, long messageSequence)
+        
+        public OutgoingMessageAdapter(IOutgoingMessage outgoingMessage, string destination)
         {
             _outgoingMessage = outgoingMessage;
             _destination = destination;
-            _messageSequence = messageSequence;
         }
 
         public string Command
@@ -29,7 +27,6 @@ namespace StompSharp
                     yield return header;
                 }
 
-                yield return new Header("receipt", _destination + "." + _messageSequence);
                 yield return new Header("destination", _destination);
             }
         }

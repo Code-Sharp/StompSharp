@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Reactive.Subjects;
+using StompSharp.Messages;
 
 namespace StompSharp
 {

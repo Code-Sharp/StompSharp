@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using StompSharp.Messages;
 
 namespace StompSharp
 {
@@ -17,14 +18,11 @@ namespace StompSharp
 
         /// <summary>
         /// Sends the given <paramref name="message"/>,
-        /// And returns a task that will complete when the message is arrived to the server.
-        /// 
-        /// Also, <paramref name="whenDone"/> is called when a receipt
-        /// is returned from the server.
+        /// And returns a task that will complete according to the receipt behavior given.
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="whenDone"></param>
-        Task SendAsync(IOutgoingMessage message, Action whenDone);
+        /// <param name="receiptBehavior"></param>
+        Task SendAsync(IOutgoingMessage message, IReceiptBehavior receiptBehavior);
 
         /// <summary>
         /// Gets an observable that subscribes
@@ -33,5 +31,7 @@ namespace StompSharp
         /// (The subscription is lazy)
         /// </summary>
         IObservable<IMessage> IncommingMessages { get; }
+
     }
+
 }

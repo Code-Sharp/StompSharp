@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace StompSharp
+namespace StompSharp.Messages
 {
     public interface IIncommingMessage : IMessage
     {
@@ -21,17 +20,6 @@ namespace StompSharp
         /// </summary>
         /// <returns></returns>
         Task Nack();
-
-    }
-
-    public interface IMessage
-    {
-
-        string Command { get; }
-
-        IEnumerable<IHeader> Headers { get; }
-
-        byte[] Body { get; }
 
     }
 }

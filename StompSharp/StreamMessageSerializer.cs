@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using StompSharp.Messages;
 
 namespace StompSharp
 {

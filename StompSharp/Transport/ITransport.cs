@@ -1,7 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using StompSharp.Messages;
 
-namespace StompSharp
+namespace StompSharp.Transport
 {
     /// <lyrics>
     /// How long, how long will I slide?

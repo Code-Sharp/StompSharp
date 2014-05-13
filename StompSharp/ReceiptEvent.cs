@@ -1,11 +1,12 @@
 using System;
+using System.Threading;
 
 namespace StompSharp
 {
-    internal class ReceiptAction
+    internal class ReceiptEvent
     {
         private readonly long _messageSequence;
-        private readonly Action _callback;
+        private readonly ManualResetEvent _callback;
 
         public long MessageSequence
         {
@@ -14,13 +15,10 @@ namespace StompSharp
 
         public void Callback()
         {
-            if (_callback != null)
-            {
-                _callback();
-            }
+            _callback.Set();
         }
 
-        public ReceiptAction(long messageSequence, Action callback)
+        public ReceiptEvent(long messageSequence, ManualResetEvent callback)
         {
             _messageSequence = messageSequence;
             _callback = callback;

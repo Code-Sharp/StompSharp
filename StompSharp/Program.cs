@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using StompSharp.Messages;
 
 namespace StompSharp
 {
@@ -123,21 +125,22 @@ namespace StompSharp
             
             var destination = client.GetDestination("/queue/a");
 
+            IReceiptBehavior receiptBehavior = new ReceiptBehavior(destination.Destination, client.Transport.IncommingMessages);
+            receiptBehavior = NoReceiptBehavior.Default;
             Stopwatch sw = Stopwatch.StartNew();
-            //using (var transaction = client.GetTransaction().Result)
-            using (destination.IncommingMessages.Subscribe(WriteMessageId))
+            //using (destination.IncommingMessages.Subscribe(WriteMessageId))
             {
-                //SendMessages(destination, transaction).Wait();
-
+                SendMessages(destination, receiptBehavior);
+                //SendMessages(destination).Wait();
                 //transaction.Commit();
-                manualResetEvent.WaitOne();
+
             }
 
             
-            
             client.Dispose();
-
             Console.WriteLine(sw.Elapsed);
+            return;
+            
             Console.ReadLine();
         }
 
@@ -147,11 +150,11 @@ namespace StompSharp
 
         private static void WriteMessageId(IMessage obj)
         {
-            //Console.WriteLine("Received Message " + Regex.Match(obj.Headers.FirstOrDefault(h => h.Key == "message-id").Value.ToString(), @"(\d+)$").Groups[1].Value);
+            messageSeq++;
 
-            if (++messageSeq == 10000)
+            if (messageSeq%10000 == 0)
             {
-                manualResetEvent.Set();
+                Console.WriteLine(messageSeq);
             }
         }
 
@@ -163,17 +166,19 @@ namespace StompSharp
             Console.WriteLine(tempFileName);
         }
 
-        private static async Task SendMessages(IDestination destination, IStompTransaction transaction)
+        private static void SendMessages(IDestination destination, IReceiptBehavior receiptBehavior)
         {
             var bodyOutgoingMessage =
-                new BodyOutgoingMessage(File.ReadAllBytes(@"Example.xml")).WithPersistence().WithTransaction(transaction);
+                new BodyOutgoingMessage(File.ReadAllBytes(@"Example.xml")).WithPersistence(); //.WithTransaction(transaction);
+            
+            Task[] tasks = new Task[10000];
             for (int i = 0; i < 10000; i++)
             {
-                int temp = i;
+                tasks[i] = destination.SendAsync(bodyOutgoingMessage, receiptBehavior);
                 
-                destination.SendAsync(bodyOutgoingMessage, null);
-                //Console.WriteLine("Sent message " + temp);
             }
+
+            Task.WaitAll(tasks);
         }
     }
 }

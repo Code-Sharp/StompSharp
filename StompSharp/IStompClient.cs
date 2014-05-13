@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
+using StompSharp.Transport;
 
 namespace StompSharp
 {
@@ -26,4 +28,5 @@ namespace StompSharp
         Task<IStompTransaction> GetTransaction();
 
     }
+
 }
