@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Stomp2
+namespace StompSharp
 {
     public class MessageBuilder
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Stomp2
+namespace StompSharp
 {
     public interface IMessageSerializer : IDisposable
     {

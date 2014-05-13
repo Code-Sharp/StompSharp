@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Stomp2
+namespace StompSharp
 {
     public interface IOutgoingMessage
     {

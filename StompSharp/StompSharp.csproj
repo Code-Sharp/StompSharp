@@ -60,6 +60,7 @@
     <Compile Include="BodyOutgoingMessage.cs" />
     <Compile Include="DestinationStorage.cs" />
     <Compile Include="Header.cs" />
+    <Compile Include="HeaderDecorator.cs" />
     <Compile Include="IDestination.cs" />
     <Compile Include="IDestinationStorage.cs" />
     <Compile Include="IHeader.cs" />

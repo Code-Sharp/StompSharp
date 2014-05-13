@@ -1,11 +1,8 @@
 using System;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Stomp2
+namespace StompSharp
 {
     public class StompClient : IStompClient
     {

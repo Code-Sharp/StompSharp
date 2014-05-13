@@ -2,10 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Subjects;
-using System.Security.Cryptography;
 using System.Threading;
 
-namespace Stomp2
+namespace StompSharp
 {
     public class DestinationStorage : IDestinationStorage
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Stomp2
+namespace StompSharp
 {
     /// <lyrics>
     /// How long, how long will I slide?

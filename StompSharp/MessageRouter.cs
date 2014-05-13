@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Reactive.Subjects;
 
-namespace Stomp2
+namespace StompSharp
 {
     public class MessageRouter : IMessageRouter
     {

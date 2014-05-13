@@ -1,15 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Stomp2
+namespace StompSharp
 {
 
     public class LateSubscriber<T> : IDisposable

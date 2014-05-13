@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Stomp2
+namespace StompSharp
 {
     public class RefCountStompDestination : IDestination
     {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Schedulers;
-using Stomp2.Threading;
+using StompSharp.Threading;
 
-namespace Stomp2
+namespace StompSharp
 {
     public class MessageSerializerQueue : IMessageSerializer
     {

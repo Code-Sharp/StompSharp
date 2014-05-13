@@ -1,20 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Dynamic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Stomp2;
 
-namespace Stomp2
+namespace StompSharp
 {
     /*
     public class StompClient 

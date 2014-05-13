@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Stomp2.Threading;
+using StompSharp.Threading;
 
 namespace StompSharp.Tests.Threading
 {

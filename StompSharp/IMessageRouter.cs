@@ -1,6 +1,6 @@
 using System;
 
-namespace Stomp2
+namespace StompSharp
 {
     public interface IMessageRouter
     {

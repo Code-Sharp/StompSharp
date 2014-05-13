@@ -1,4 +1,4 @@
-namespace Stomp2
+namespace StompSharp
 {
     internal class Header : IHeader
     {

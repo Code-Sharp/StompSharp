@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Stomp2.Threading
+namespace StompSharp.Threading
 {
     public class BlockingCollectionTaskScheduler : TaskScheduler, IDisposable
     {
