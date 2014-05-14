@@ -1,4 +1,4 @@
-namespace StompSharp
+namespace StompSharp.Messages
 {
     internal class Header : IHeader
     {

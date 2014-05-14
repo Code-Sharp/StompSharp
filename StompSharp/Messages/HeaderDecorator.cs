@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using StompSharp.Messages;
 
-namespace StompSharp
+namespace StompSharp.Messages
 {
     public abstract class HeaderDecorator : IOutgoingMessage
     {

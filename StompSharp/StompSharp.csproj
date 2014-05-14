@@ -57,10 +57,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BodyOutgoingMessage.cs" />
+    <Compile Include="Messages\BodyOutgoingMessage.cs" />
     <Compile Include="DestinationStorage.cs" />
-    <Compile Include="Header.cs" />
-    <Compile Include="HeaderDecorator.cs" />
+    <Compile Include="Messages\Header.cs" />
+    <Compile Include="Messages\HeaderDecorator.cs" />
     <Compile Include="IDestination.cs" />
     <Compile Include="IDestinationStorage.cs" />
     <Compile Include="IHeader.cs" />
@@ -68,13 +68,16 @@
     <Compile Include="Messages\IOutgoingMessage.cs" />
     <Compile Include="Messages\IIncommingMessage.cs" />
     <Compile Include="Messages\IMessage.cs" />
+    <Compile Include="Messages\PersistentHeaderDecorator.cs" />
+    <Compile Include="Messages\TransactionExtensions.cs" />
+    <Compile Include="Messages\TransactionHeaderDecorator.cs" />
     <Compile Include="Transport\IMessageFactory.cs" />
     <Compile Include="IMessageRouter.cs" />
     <Compile Include="Transport\IMessageSerializer.cs" />
     <Compile Include="IStompClient.cs" />
     <Compile Include="IStompTransaction.cs" />
-    <Compile Include="Message.cs" />
-    <Compile Include="MessageBuilder.cs" />
+    <Compile Include="Messages\Message.cs" />
+    <Compile Include="Messages\MessageBuilder.cs" />
     <Compile Include="MessageRouter.cs" />
     <Compile Include="MessageSerializerQueue.cs" />
     <Compile Include="Messages\OutgoingMessageAdapter.cs" />

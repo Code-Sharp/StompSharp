@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using StompSharp.Messages;
 
-namespace StompSharp
+namespace StompSharp.Messages
 {
     internal class Message : IMessage
     {
