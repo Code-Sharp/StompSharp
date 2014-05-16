@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using StompSharp.Messages;
@@ -86,10 +83,10 @@ namespace StompSharp
         {
             _subscribed = true;
 
+            _incommingMessages.Subscribe(arg);
+
             await _transport.SendMessage(
                     new MessageBuilder("SUBSCRIBE").Header("destination", _destination).Header("id", _id).WithoutBody());
-
-            _incommingMessages.Subscribe(arg);
 
             return Disposable.Create(Unsubscribe);
         }
