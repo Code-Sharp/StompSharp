@@ -69,8 +69,11 @@
     <Compile Include="Messages\IIncommingMessage.cs" />
     <Compile Include="Messages\IMessage.cs" />
     <Compile Include="Messages\PersistentHeaderDecorator.cs" />
+    <Compile Include="Messages\ReceiptHeaderDecorator.cs" />
     <Compile Include="Messages\TransactionExtensions.cs" />
     <Compile Include="Messages\TransactionHeaderDecorator.cs" />
+    <Compile Include="NoReceiptBehavior.cs" />
+    <Compile Include="ReceiptBehavior.cs" />
     <Compile Include="Transport\IMessageFactory.cs" />
     <Compile Include="IMessageRouter.cs" />
     <Compile Include="Transport\IMessageSerializer.cs" />
