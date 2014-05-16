@@ -3,6 +3,10 @@ using StompSharp.Messages;
 
 namespace StompSharp
 {
+    /// <summary>
+    /// Represents an object that receives <see cref="IMessage"/>s,
+    /// Allows to register to all of them, Or to some of them by a given command.
+    /// </summary>
     public interface IMessageRouter
     {
 

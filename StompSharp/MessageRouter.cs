@@ -5,6 +5,9 @@ using StompSharp.Messages;
 
 namespace StompSharp
 {
+    /// <summary>
+    /// A default fast-lookup implementation of <see cref="IMessageRouter"/>.
+    /// </summary>
     public class MessageRouter : IMessageRouter
     {
         private readonly IObservable<IMessage> _all;
@@ -12,6 +15,12 @@ namespace StompSharp
         private readonly ConcurrentDictionary<string, Subject<IMessage>> _commandSubjects =
             new ConcurrentDictionary<string, Subject<IMessage>>(StringComparer.CurrentCultureIgnoreCase);
 
+        /// <summary>
+        /// Creates an instance of <see cref="MessageRouter"/>
+        /// that registers to the given <paramref name="all"/>
+        /// observable.
+        /// </summary>
+        /// <param name="all"></param>
         public MessageRouter(IObservable<IMessage> all)
         {
             _all = all;
@@ -31,7 +40,6 @@ namespace StompSharp
         {
             return new Subject<IMessage>();
         }
-
 
         public IObservable<IMessage> All
         {

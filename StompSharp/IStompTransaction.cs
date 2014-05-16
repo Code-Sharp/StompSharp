@@ -3,6 +3,20 @@ using System.Threading.Tasks;
 
 namespace StompSharp
 {
+    /// <summary>
+    /// Represents a transaction with a STOMP compatible server.
+    /// 
+    /// Usage : Get the transaction via the <see cref="IStompClient"/>,
+    /// You must call one of the methods <see cref="Commit"/> or <see cref="Rollback"/>,
+    /// On dispose, <see cref="Rollback"/> will be called.
+    /// 
+    /// Note : The implementation of <see cref="IStompTransaction"/> in this client
+    /// has no Finalizer, Meaning that you will leak transactions with the server if you will not call
+    /// on of those methods.
+    /// 
+    /// Use within a dispose block (using ...) to ensure that rollback is called if commit haven't
+    /// been called yet.
+    /// </summary>
     public interface IStompTransaction : IDisposable
     {
 

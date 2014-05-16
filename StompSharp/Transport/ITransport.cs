@@ -4,13 +4,10 @@ using StompSharp.Messages;
 
 namespace StompSharp.Transport
 {
-    /// <lyrics>
-    /// How long, how long will I slide?
-    /// Separate my side
-    /// I don't, I don't believe it's bad
-    /// Slittin' my throat, it's all I ever
-    /// </lyrics>
-
+   
+    /// <summary>
+    /// Represents a logical connection to the otherside (Mostly a STOMP compatible server).
+    /// </summary>
     public interface ITransport : IDisposable
     {
 

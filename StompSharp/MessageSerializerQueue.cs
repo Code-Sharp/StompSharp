@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using StompSharp.Messages;
 using StompSharp.Threading;
+using StompSharp.Transport;
 
 namespace StompSharp
 {

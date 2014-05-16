@@ -4,6 +4,10 @@ using StompSharp.Messages;
 
 namespace StompSharp
 {
+    /// <summary>
+    /// Represents a destination (Mostly, A queue or a topic, Or a composition of one or more of them)
+    /// inside the STOMP server, Allows us to send or to subscribe for messages.
+    /// </summary>
     public interface IDestination : IDisposable
     {
         /// <summary>

@@ -11,6 +11,8 @@ namespace StompSharp
     /// An <see cref="IReceiptBehavior"/>
     /// that adds a Receipt Header for every outgoing message
     /// and wait for the server to send receipt to that message.
+    /// 
+    /// Create only one instance of this behavior for every destination that you want to use it with.
     /// </summary>
     public class ReceiptBehavior : IReceiptBehavior
     {

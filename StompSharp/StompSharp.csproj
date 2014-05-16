@@ -92,9 +92,9 @@
     <Compile Include="Transport\ITransport.cs" />
     <Compile Include="Transport\LateSubscriber.cs" />
     <Compile Include="Transport\StompTransport.cs" />
-    <Compile Include="StreamMessageFactory.cs" />
     <Compile Include="StreamMessageSerializer.cs" />
     <Compile Include="Threading\BlockingCollectionTaskScheduler.cs" />
+    <Compile Include="Transport\StreamMessageFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

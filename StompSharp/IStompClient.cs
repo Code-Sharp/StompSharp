@@ -1,10 +1,12 @@
 using System;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using StompSharp.Transport;
 
 namespace StompSharp
 {
+    /// <summary>
+    /// Represents a client for a STOMP compatible server.
+    /// </summary>
     public interface IStompClient : IDisposable
     {
 

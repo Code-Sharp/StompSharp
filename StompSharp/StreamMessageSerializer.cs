@@ -1,6 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using StompSharp.Messages;
+using StompSharp.Transport;
 
 namespace StompSharp
 {
