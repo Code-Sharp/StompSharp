@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -123,17 +124,22 @@ namespace StompSharp
 
             StompClient client = new StompClient("localhost", 61613);
             
-            var destination = client.GetDestination("/queue/a");
+            var destination = client.GetDestination("/queue/a", client.SubscriptionBehaviors.ClientIndividualAcknowledge);
 
             IReceiptBehavior receiptBehavior = new ReceiptBehavior(destination.Destination, client.Transport.IncommingMessages);
             receiptBehavior = NoReceiptBehavior.Default;
             Stopwatch sw = Stopwatch.StartNew();
-            //using (destination.IncommingMessages.Subscribe(WriteMessageId))
+            using (destination.IncommingMessages.Subscribe(WriteMessageId))
             {
-                SendMessages(destination, receiptBehavior);
-                //SendMessages(destination).Wait();
+                //SendMessages(destination, receiptBehavior);
                 //transaction.Commit();
 
+                Console.WriteLine("Subscribed to messages, Press enter to ack last one");
+                Console.ReadLine();
+
+                lastMessage.Ack().Wait();
+                Console.WriteLine("Ackd last message, press enter to end subscription and dispose client");
+                Console.ReadLine();
             }
 
             
@@ -148,8 +154,12 @@ namespace StompSharp
 
         private static readonly ManualResetEvent manualResetEvent = new ManualResetEvent(false);
 
-        private static void WriteMessageId(IMessage obj)
+        private static IAcknowledgableMessage lastMessage;
+
+        private static void WriteMessageId(IAcknowledgableMessage obj)
         {
+            lastMessage = obj;
+
             messageSeq++;
 
             if (messageSeq%10000 == 0)

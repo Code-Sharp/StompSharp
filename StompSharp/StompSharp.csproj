@@ -57,6 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IDestinationRegistrationBehavior.cs" />
+    <Compile Include="Messages\AcknowledgableMessage.cs" />
     <Compile Include="Messages\BodyOutgoingMessage.cs" />
     <Compile Include="DestinationStorage.cs" />
     <Compile Include="Messages\Header.cs" />
@@ -66,7 +68,7 @@
     <Compile Include="IHeader.cs" />
     <Compile Include="IReceiptBehavior.cs" />
     <Compile Include="Messages\IOutgoingMessage.cs" />
-    <Compile Include="Messages\IIncommingMessage.cs" />
+    <Compile Include="Messages\IAcknowledgableMessage.cs" />
     <Compile Include="Messages\IMessage.cs" />
     <Compile Include="Messages\PersistentHeaderDecorator.cs" />
     <Compile Include="Messages\ReceiptHeaderDecorator.cs" />

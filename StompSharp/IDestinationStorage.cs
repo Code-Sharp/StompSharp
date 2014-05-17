@@ -1,8 +1,10 @@
+using StompSharp.Messages;
+
 namespace StompSharp
 {
 
     /// <summary>
-    /// Represents a storage of <see cref="IDestination"/>s.
+    /// Represents a storage of <see cref="IDestination{TMessage}"/>s.
     /// </summary>
     public interface IDestinationStorage
     {
@@ -13,8 +15,11 @@ namespace StompSharp
         /// understand the naming scheme of stomp destinations.
         /// </summary>
         /// <param name="destination"></param>
+        /// <param name="subscriptionBehavior"></param>
         /// <returns></returns>
-        IDestination Get(string destination);
+        IDestination<TMessage> Get<TMessage>(string destination, ISubscriptionBehavior<TMessage> subscriptionBehavior) 
+            where TMessage : IMessage;
+
 
     }
 }

@@ -8,14 +8,15 @@ using StompSharp.Transport;
 
 namespace StompSharp
 {
-    public class RefCountStompDestination : IDestination
+    public class RefCountStompDestination<TMessage> : IDestination<TMessage>
+        where TMessage : IMessage
     {
-        private readonly IDestination _destination;
-        private readonly Action<RefCountStompDestination> _disposeAction;
+        private readonly IDestination<TMessage> _destination;
+        private readonly Action _disposeAction;
         private int _references;
         
 
-        public RefCountStompDestination(IDestination destination, Action<RefCountStompDestination> disposeAction)
+        public RefCountStompDestination(IDestination<TMessage> destination, Action disposeAction)
         {
             _destination = destination;
             _disposeAction = disposeAction;
@@ -27,7 +28,7 @@ namespace StompSharp
             if (Interlocked.Decrement(ref _references) == 0)
             {
                 _destination.Dispose();
-                _disposeAction(this);
+                _disposeAction();
             }
         }
 
@@ -51,30 +52,34 @@ namespace StompSharp
             return _destination.SendAsync(message, receiptBehavior);
         }
 
-        public IObservable<IMessage> IncommingMessages
+        public IObservable<TMessage> IncommingMessages
         {
             get { return _destination.IncommingMessages; }
         }
     }
 
-    public class StompDestination : IDestination
+    public class StompDestination<TMessage> : IDestination<TMessage> 
+        where TMessage : IMessage
     {
-        private readonly StompTransport _transport;
+        private readonly ITransport _transport;
         private readonly string _destination;
         private readonly int _id;
-        private readonly IObservable<IMessage> _incommingMessagesObservable;
         private readonly IObservable<IMessage> _incommingMessages;
+        private readonly ISubscriptionBehavior<TMessage> _subscriptionBehavior;
+        private readonly IObservable<TMessage> _incommingMessagesObservable;
         private bool _subscribed;
 
-        public StompDestination(StompTransport transport, string destination, int id, IObservable<IMessage> incommingMessages)
+        public StompDestination(ITransport transport, string destination, int id, IObservable<IMessage> incommingMessages, ISubscriptionBehavior<TMessage> subscriptionBehavior)
         {
             _transport = transport;
             _destination = destination;
             _id = id;
             _incommingMessages = incommingMessages;
+            _subscriptionBehavior = subscriptionBehavior;
 
             _incommingMessagesObservable =
                 Observable.Create(new Func<IObserver<IMessage>, Task<IDisposable>>(RegisterToQueue))
+                    .Select(_subscriptionBehavior.Transform)
                     .Publish()
                     .RefCount();
         }
@@ -86,7 +91,8 @@ namespace StompSharp
             _incommingMessages.Subscribe(arg);
 
             await _transport.SendMessage(
-                    new MessageBuilder("SUBSCRIBE").Header("destination", _destination).Header("id", _id).WithoutBody());
+                    _subscriptionBehavior.GetSubscriptionMessage(Destination, Id)
+                    );
 
             return Disposable.Create(Unsubscribe);
         }
@@ -109,7 +115,7 @@ namespace StompSharp
                         _destination)));
         }
 
-        public IObservable<IMessage> IncommingMessages
+        public IObservable<TMessage> IncommingMessages
         {
             get { return _incommingMessagesObservable; }
         }

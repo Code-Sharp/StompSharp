@@ -42,13 +42,13 @@ namespace StompSharp.Transport
             }
         }
 
-        private void ReadLoop()
+        private async void ReadLoop()
         {
             try
             {
                 while (!_disposed)
                 {
-                    _incommingMessagesSubject.OnNext(_messageFactory.Create().Result);
+                    _incommingMessagesSubject.OnNext(await _messageFactory.Create());
                 }
             }
             catch (Exception)

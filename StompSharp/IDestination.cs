@@ -27,14 +27,21 @@ namespace StompSharp
         /// <param name="message"></param>
         /// <param name="receiptBehavior"></param>
         Task SendAsync(IOutgoingMessage message, IReceiptBehavior receiptBehavior);
+    }
 
+    /// <summary>
+    /// Represents a destination (Mostly, A queue or a topic, Or a composition of one or more of them)
+    /// inside the STOMP server, Allows us to send or to subscribe for messages.
+    /// </summary>
+    public interface IDestination<out TMessage> : IDestination where TMessage : IMessage
+    {
         /// <summary>
         /// Gets an observable that subscribes
         /// to incomming messages for this destination.
         /// 
         /// (The subscription is lazy)
         /// </summary>
-        IObservable<IMessage> IncommingMessages { get; }
+        IObservable<TMessage> IncommingMessages { get; }
 
     }
 

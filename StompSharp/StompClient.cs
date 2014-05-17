@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using StompSharp.Messages;
@@ -9,8 +10,8 @@ namespace StompSharp
     public class StompClient : IStompClient
     {
         private readonly StompTransport _transport;
-
         private readonly IDestinationStorage _destinationStorage;
+        private readonly ISubscriptionBehaviorProvider _subscriptionBehaviors;
 
         private int _transactionId;
 
@@ -18,6 +19,7 @@ namespace StompSharp
         {
             _transport = new StompTransport(address, port);
             _destinationStorage = new DestinationStorage(_transport);
+            _subscriptionBehaviors = new SubscriptionBehaviorProvider(_transport);
         }
 
         public void Dispose()
@@ -30,9 +32,11 @@ namespace StompSharp
             get { return _transport; }
         }
 
-        public IDestination GetDestination(string destination)
+
+        public IDestination<TMessage> GetDestination<TMessage>(string destination, ISubscriptionBehavior<TMessage> subscriptionBehavior) 
+            where TMessage : IMessage
         {
-            return _destinationStorage.Get(destination);
+            return _destinationStorage.Get(destination, subscriptionBehavior);
         }
 
         public Task<IStompTransaction> GetTransaction()
@@ -42,6 +46,11 @@ namespace StompSharp
             return
                 _transport.SendMessage(message)
                     .ContinueWith<IStompTransaction>(m => new StompTransaction(_transactionId, Transport));
+        }
+
+        public ISubscriptionBehaviorProvider SubscriptionBehaviors
+        {
+            get { return _subscriptionBehaviors; }
         }
     }
 
