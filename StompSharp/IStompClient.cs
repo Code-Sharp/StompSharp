@@ -27,10 +27,10 @@ namespace StompSharp
             where TMessage : IMessage;
 
         /// <summary>
-        /// Gets a transaction
+        /// Starts a new transaction.
         /// </summary>
         /// <returns></returns>
-        Task<IStompTransaction> GetTransaction();
+        Task<IStompTransaction> BeginTransaction();
 
         /// <summary>
         /// Gets the default available subscription behaviors

@@ -39,7 +39,7 @@ namespace StompSharp
             return _destinationStorage.Get(destination, subscriptionBehavior);
         }
 
-        public Task<IStompTransaction> GetTransaction()
+        public Task<IStompTransaction> BeginTransaction()
         {
             var message = new MessageBuilder("BEGIN").Header("transaction", Interlocked.Increment(ref _transactionId)).WithoutBody();
 
