@@ -5,8 +5,6 @@ C# (.net) Stomp Client.
 
 Master | Provider
 ------ | --------
-<!--[![Build Status][TeamCityImgMaster]][TeamCityLinkMaster] | Windows CI Provided By [JetBrains][] and [CodeBetter][]
-[![Build Status][AppVeyorImgMaster]][AppVeyorLinkMaster] | Windows CI Provided By [AppVeyor][]-->
 [![Build Status][MonoImgMaster]][MonoLinkMaster] | Mono CI Provided by [travis-ci][] 
 
 [TeamCityImgMaster]:http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt1191\)/statusIcon
