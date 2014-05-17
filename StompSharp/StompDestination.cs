@@ -102,7 +102,7 @@ namespace StompSharp
         {
             if (_subscribed)
             {
-                await _transport.SendMessage(new MessageBuilder("UNSUBSCRIBE").Header("ID", _id).Header("destination", _destination).WithoutBody());
+                await _transport.SendMessage(new MessageBuilder("UNSUBSCRIBE").Header("id", _id).Header("destination", _destination).WithoutBody());
                 _subscribed = false;    
             }
         }
