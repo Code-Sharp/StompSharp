@@ -123,30 +123,32 @@ namespace StompSharp
             */
 
             StompClient client = new StompClient("localhost", 61613);
-            
-            var destination = client.GetDestination("/queue/a", client.SubscriptionBehaviors.ClientIndividualAcknowledge);
 
+            client.Transport.IncommingMessages.GetObservable("ERROR").Subscribe(m => Console.WriteLine("ERROR!" + m));
+            var destination = client.GetDestination("/queue/a", client.SubscriptionBehaviors.AutoAcknowledge);
+            
             IReceiptBehavior receiptBehavior = new ReceiptBehavior(destination.Destination, client.Transport.IncommingMessages);
             receiptBehavior = NoReceiptBehavior.Default;
             Stopwatch sw = Stopwatch.StartNew();
+            //using (var transaction = client.GetTransaction().Result)
             using (destination.IncommingMessages.Subscribe(WriteMessageId))
             {
-                //SendMessages(destination, receiptBehavior);
+                //SendMessages(destination, receiptBehavior, transaction).Wait();
                 //transaction.Commit();
 
                 Console.WriteLine("Subscribed to messages, Press enter to ack last one");
                 Console.ReadLine();
 
-                lastMessage.Ack().Wait();
+                //lastMessage.Ack().Wait();
                 Console.WriteLine("Ackd last message, press enter to end subscription and dispose client");
                 Console.ReadLine();
             }
 
-            
+
             client.Dispose();
             Console.WriteLine(sw.Elapsed);
             return;
-            
+
             Console.ReadLine();
         }
 
@@ -154,17 +156,16 @@ namespace StompSharp
 
         private static readonly ManualResetEvent manualResetEvent = new ManualResetEvent(false);
 
-        private static IAcknowledgableMessage lastMessage;
+        private static IMessage lastMessage;
 
-        private static void WriteMessageId(IAcknowledgableMessage obj)
+        private static void WriteMessageId(IMessage obj)
         {
-            lastMessage = obj;
-
+            
             messageSeq++;
 
-            if (messageSeq%10000 == 0)
+            //if (messageSeq == 0)
             {
-                Console.WriteLine(messageSeq);
+                Console.WriteLine("Read : " + messageSeq);
             }
         }
 
@@ -176,19 +177,21 @@ namespace StompSharp
             Console.WriteLine(tempFileName);
         }
 
-        private static void SendMessages(IDestination destination, IReceiptBehavior receiptBehavior)
+        private static async Task SendMessages(IDestination destination, IReceiptBehavior receiptBehavior, IStompTransaction transaction)
         {
             var bodyOutgoingMessage =
                 new BodyOutgoingMessage(File.ReadAllBytes(@"Example.xml")).WithPersistence(); //.WithTransaction(transaction);
-            
-            Task[] tasks = new Task[10000];
+
             for (int i = 0; i < 10000; i++)
             {
-                tasks[i] = destination.SendAsync(bodyOutgoingMessage, receiptBehavior);
-                
+
+                await destination.SendAsync(bodyOutgoingMessage, receiptBehavior);
             }
 
-            Task.WaitAll(tasks);
+            await transaction.Commit();
+
+            Console.WriteLine("Done sending");
+
         }
     }
 }
