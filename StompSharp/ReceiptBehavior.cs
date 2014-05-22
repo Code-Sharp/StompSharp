@@ -35,6 +35,12 @@ namespace StompSharp
             _subscription = messageRouter.GetObservable("RECEIPT").Subscribe(OnReceiptReceived);
         }
 
+        /// <summary>
+        /// Returns a new task
+        /// that is continued only when the receipt is received.
+        /// </summary>
+        /// <param name="sendMessageTask"></param>
+        /// <returns></returns>
         public Task DecorateSendMessageTask(Task sendMessageTask)
         {
             var currentSequence = _messageSequence;
@@ -49,6 +55,12 @@ namespace StompSharp
             return sendMessageTask.ContinueWith(t => resetEvent.Set());
         }
 
+        /// <summary>
+        /// Decorates the given <paramref name="message"/> 
+        /// with a <see cref="ReceiptHeaderDecorator"/>.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public IOutgoingMessage DecorateMessage(IOutgoingMessage message)
         {
             return new ReceiptHeaderDecorator(message, _destination, Interlocked.Increment(ref _messageSequence));
