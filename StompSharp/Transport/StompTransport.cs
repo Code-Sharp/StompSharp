@@ -12,6 +12,8 @@ namespace StompSharp.Transport
 {
     public class StompTransport : ITransport
     {
+        private static readonly Encoding ASCII8BitEncoding = Encoding.GetEncoding(437);
+
         private readonly Subject<IMessage> _incommingMessagesSubject = new Subject<IMessage>();
         private readonly Subject<IMessage> _outgoingMessagesSubject = new Subject<IMessage>();
         private readonly TcpClient _client;
@@ -25,10 +27,10 @@ namespace StompSharp.Transport
             _client = new TcpClient();
             _client.Connect(address, port);
 
-            _messageFactory = new StreamMessageFactory(new StreamReader(_client.GetStream(), Encoding.ASCII));
+            _messageFactory = new StreamMessageFactory(new StreamReader(_client.GetStream(), ASCII8BitEncoding));
             _messageSerializer =
                  new MessageSerializerQueue(
-                    new StreamMessageSerializer(new StreamWriter(_client.GetStream(), Encoding.ASCII)));
+                    new StreamMessageSerializer(new StreamWriter(_client.GetStream(), ASCII8BitEncoding)));
 
             _incommingMessageRouter = new MessageRouter(_incommingMessagesSubject);
 
